@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %} My Cart {% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col -md -8">
+            <h4>Items in my cart</h4><hr>
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Product</th>
+                        <th>Rate</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <body>
+                    {% for cp in cart.cartproduct_set.all %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{cp.product.title}}</td>
+                        <td>{{cp.rate}}</td>
+                        <td>{{cp.quantity}}</td>
+                        <td>{{cp.subtotal}}</td>
+                        <td>
+                            <a href="{% url 'ecomapp:managecart' cp.id %}?action=inc" class="btn btn-primary">+</a>
+                            <a href="{% url 'ecomapp:managecart' cp.id %}?action=dcr" class="btn btn-warning">-</a>
+                            <a href="{% url 'ecomapp:managecart' cp.id %}?action=rmv" class="btn btn-danger">x</a>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <th colspan="4" class="text-right">Total</th>
+                        <th>Rs. {{cart.total}}</th>
+                        {% if cart.cartproduct_set.all %}
+                        <th><a href ='{% url "ecomapp:emptycart" %}' class="btn btn-danger">Empty Cart</a></th>
+                        {% endif %}
+
+                        {% if cart.cartproduct_set.all %}
+                        <tr>
+                            <th><a href="{% url 'ecomapp:checkout' %}" class="btn btn-success">Proceed to Checkout</a></th>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <th colspan="5" class="text-center">Your cart is empty. Add items to proceed.</th>
+                        </tr>
+                        {% endif %}
+                    </tr>
+                </body>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+

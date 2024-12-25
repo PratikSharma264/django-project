@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Detail Information</h3>
+            <div class="customer-details">
+                <p><span class="font-weight-bold">Name:</span> {{ customer.full_name }}</p>
+                <p><span class="font-weight-bold">Username:</span> {{ customer.user.username }}</p>
+                <p><span class="font-weight-bold">Email:</span> {{ customer.user.email }}</p>
+                <p><span class="font-weight-bold">Address:</span> {{ customer.address }}</p>
+                <p><span class="font-weight-bold">Joined On:</span> {{ customer.joined_on|date:"F j, Y" }}</p>
+            </div>            
+        </div>
+        <div class="col-md-6">
+            <h3>Previous Orders</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.order_date|date:"F j, Y" }}</td>
+                        <td>{{ order.total_amount }}</td>
+                        <td>{{ order.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        </div>
+    </div>
+</div>
+<style>
+    .customer-details {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .customer-details .font-weight-bold {
+        font-weight: bold;
+        color: #000;
+    }
+    
+</style>
+{% endblock %}
