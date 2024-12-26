@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Customer Order Detail{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Order Detail</h3>
+            <div class="customer-details">
+                <p><span class="font-weight-bold">Order ID:</span> {{ order.id }}</p>
+                <p><span class="font-weight-bold">Total Amount:</span> {{ order.total_amount }}</p>
+                <p><span class="font-weight-bold">Order Date:</span> {{ order.order_date|date:"F j, Y" }}</p>
+                <p><span class="font-weight-bold">Status:</span> {{ order.status }}</p>
+            </div>            
+        </div>
+        <div class="col-md-6">
+            <h3>Order Items</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.price }}</td>
+                        <td>{{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .customer-details {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+    }
+    
+    .customer-details .font-weight-bold {
+        font-weight: bold;
+        color: #000;
+    }
+</style>
+{% endblock %}
