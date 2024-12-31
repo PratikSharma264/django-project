@@ -1,10 +1,10 @@
 #from typing import Any
 from django.shortcuts import render,redirect
-from django.views.generic import View,TemplateView,CreateView,FormView,DetailView
+from django.views.generic import View,TemplateView,CreateView,FormView,DetailView,ListView
 from django.urls import reverse_lazy
 from .models import *
 from django.contrib import messages
-from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm
+from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm
 from django.contrib.auth import authenticate, login, logout
 import logging
 
@@ -263,12 +263,12 @@ class CustomerLoginView(FormView):
     form_class = CustomerLoginForm
     success_url = reverse_lazy("ecomapp:home")
     
-    #form_valid method is a type of post method and ois available in createview,formview and updateview
     def form_valid(self,form):
         uname = form.cleaned_data.get("username")
         pword = form.cleaned_data["password"]
         usr = authenticate(username=uname,password=pword)
-        if usr is not None and usr.customer:
+        #if usr is not None and usr.customer:
+        if usr is not None and Customer.objects.filter(user=usr).exists():
             login(self.request, usr)
         else:
             return render(self.request,self.template_name, {"form": self.form_class,"error": "Invalid credentials"})
@@ -292,7 +292,7 @@ class CustomerProfileView(TemplateView):
     template_name="customerprofile.html"
     def dispatch(self, request, *args, **kwargs):
         user = request.user
-        if request.user.is_authenticated and request.user.customer:
+        if request.user.is_authenticated and Customer.objects.filter(user=request.user).exists():
             pass
         else:
             return redirect("/login/?next=/profile/")
@@ -313,7 +313,7 @@ class CustomerOrderDetailView(DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         user = request.user
-        if request.user.is_authenticated and request.user.customer:
+        if request.user.is_authenticated and Customer.objects.filter(user=request.user).exists():
             order_id=self.kwargs['pk']
             order=Order.objects.get(id=order_id)
             if request.user.customer != order.cart.customer:
@@ -329,3 +329,55 @@ class CustomerOrderDetailView(DetailView):
         orderitems=CartProduct.objects.filter(cart=order.cart)
         context['orderitems']=orderitems
         return context
+    
+#admin pages
+class AdminLoginView(FormView):
+    template_name="adminpages/adminlogin.html"
+    form_class=AdminLoginForm
+    success_url=reverse_lazy("ecomapp:adminhome")
+
+    def form_valid(self, form):
+        uname=form.cleaned_data.get("username")
+        pword=form.cleaned_data.get("password")
+        usr=authenticate(username=uname,password=pword)
+        if usr is not None and usr.admin:
+            login(self.request,usr)
+        else:
+            return render(self.request,self.template_name,{"form":self.form_class,"error":"Invalid credentials"})
+        return super().form_valid(form)
+    
+class  AdminRequiredMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated and Admin.objects.filter(user=request.user).exists():
+            pass
+        else:
+            return redirect("/admin-login/")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AdminHomeView(AdminRequiredMixin,TemplateView):
+    template_name="adminpages/adminhome.html"
+    
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['pendingorders']=Order.objects.filter(order_status="Order Recieved").order_by("-id")
+        return context
+
+
+class AdminOrderDetailView(AdminRequiredMixin,DetailView):
+    template_name="adminpages/adminorderdetail.html"
+    model=Order
+    context_object_name="ord_obj"
+
+class AdminOrderListView(AdminRequiredMixin,ListView):
+    template_name="adminpages/adminorderlist.html"
+    queryset=Order.objects.all().order_by("-id")
+    context_object_name="allorders"
+    
+
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['allorders']=Order.objects.all().order_by("-id")
+        return context
+
+   

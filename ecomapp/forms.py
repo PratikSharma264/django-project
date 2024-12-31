@@ -124,3 +124,19 @@ class CustomerLoginForm(forms.Form):
         }),
         label="Password"
     )
+
+class AdminLoginForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={
+            "placeholder": "Enter username", 
+            "class": "form-control"
+        }),
+        label="Username"
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "placeholder": "Enter password", 
+            "class": "form-control"
+        }),
+        label="Password"
+    )

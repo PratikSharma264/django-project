@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Login{% endblock %}
+
+{% block content %}
+<style>
+    .errorlist {
+        color: red;
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .errorlist li {
+        margin-bottom: 5px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    button[type="submit"] {
+        transition: all 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Admin  Login Form</h3>
+                    <hr>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Render form fields -->
+                        {{ form.as_p }}
+
+                        <!-- Submit button -->
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-primary" aria-label="Submit the Login form">
+                                Login as a Admin
+                            </button>
+                            {% if error %}
+                                <li style="color: red;">{{error}}</li>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
