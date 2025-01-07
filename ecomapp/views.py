@@ -7,6 +7,8 @@ from django.contrib import messages
 from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm
 from django.contrib.auth import authenticate, login, logout
 import logging
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 # Create your views here.
 class EcomMixin(object):
@@ -20,13 +22,33 @@ class EcomMixin(object):
         return super().dispatch(request,*args,**kwargs)
     
 
-class HomeView(EcomMixin,TemplateView):
-    template_name= "home.html"
+# class HomeView(EcomMixin,TemplateView):
+#     template_name= "home.html"
 
-    def get_context_data(self,**kwargs):
-        context=super().get_context_data(**kwargs)
-        context['product_list']=Product.objects.all()
-        context['allcategories']=Category.objects.all().order_by("-id")
+    # def get_context_data(self,**kwargs):
+    #     context=super().get_context_data(**kwargs)
+    #     #context['product_list']=Product.objects.all()
+    #     context['myname']="Pratik Sharma"
+    #     all_products = Product.objects.all().order_by("-id")
+    #     paginatior = Paginator(all_products,4)
+    #     page_number = self.request.GET.get("page")
+    #     product_list = Paginator.get_page(page_number)
+    #     #context['allcategories']=Category.objects.all().order_by("-id")
+    #     context["product_list"]= product_list
+    #     return context
+
+class HomeView(EcomMixin, TemplateView):
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['myname'] = "Pratik Sharma"
+        all_products = Product.objects.all().order_by("-id")
+        paginator = Paginator(all_products, 8)  
+        page_number = self.request.GET.get("page")
+        product_list = paginator.get_page(page_number)
+        context["product_list"] = product_list
+        context['allcategories'] = Category.objects.all().order_by("-id")
         return context
     
 class AllProductsView(EcomMixin,TemplateView):
@@ -330,6 +352,19 @@ class CustomerOrderDetailView(DetailView):
         context['orderitems']=orderitems
         return context
     
+class SearchView(TemplateView):
+    template_name="search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        kw=self.request.GET.get('keyword')
+        results = Product.objects.filter(Q(title__icontains=kw) | Q(description__icontains=kw) | Q(return_policy__icontains=kw))
+        context["results"] = results
+        return context
+        
+        
+
+
 #admin pages
 class AdminLoginView(FormView):
     template_name="adminpages/adminlogin.html"
@@ -369,6 +404,13 @@ class AdminOrderDetailView(AdminRequiredMixin,DetailView):
     model=Order
     context_object_name="ord_obj"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["allstatus"]=ORDER_STATUS
+        return context
+
+
+
 class AdminOrderListView(AdminRequiredMixin,ListView):
     template_name="adminpages/adminorderlist.html"
     queryset=Order.objects.all().order_by("-id")
@@ -379,5 +421,15 @@ class AdminOrderListView(AdminRequiredMixin,ListView):
         context=super().get_context_data(**kwargs)
         context['allorders']=Order.objects.all().order_by("-id")
         return context
+
+
+class AdminOrderStatusChange(AdminRequiredMixin,View):
+    def post(self,request,*args,**kwargs):
+        order_id = self.kwargs["pk"]
+        order_obj = Order.objects.get(id=order_id)
+        new_status=request.POST.get("status")
+        order_obj.order_status=new_status
+        order_obj.save()
+        return redirect(reverse_lazy("ecomapp:adminorderdetail", kwargs={"pk":self.kwargs["pk"]}))
 
    

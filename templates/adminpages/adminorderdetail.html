@@ -42,6 +42,15 @@
                         <td>Rs. {{ ord_obj.total|intcomma }}/-</td>
                 </tbody>
             </table>
+            <form action="{% url 'ecomapp:adminorderstatuschange' ord_obj.id %}" method="POST">
+                {% csrf_token %}
+                <select name='status'>
+                    {% for i,j in allstatus %}
+                    <option value="{{i}}" {% if i == ord_obj.order_status %}seleced{% endif %}>{{j}}</option>
+                    {% endfor %} 
+                </select>
+                <button class="btn btn-info">Change</button>
+            </form>
         </div>
     </div>
 </div>
