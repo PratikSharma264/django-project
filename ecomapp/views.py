@@ -4,7 +4,7 @@ from django.views.generic import View,TemplateView,CreateView,FormView,DetailVie
 from django.urls import reverse_lazy
 from .models import *
 from django.contrib import messages
-from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm
+from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm,ContactForm
 from django.contrib.auth import authenticate, login, logout
 import logging
 from django.db.models import Q
@@ -304,12 +304,42 @@ class CustomerLoginView(FormView):
             return self.success_url
 
 
-class AboutView(EcomMixin,TemplateView):
-    template_name= "about.html"
+
+class AboutView(EcomMixin, TemplateView):
+    template_name = "about.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Provide creator details
+        context['creator'] = {
+            'name': 'Patik Sharma',  # Replace with actual creator's name
+            'role': 'Developer & Visionary',
+            'image_url': 'path/to/creator.jpg',  # Replace with actual image path
+            'bio': 'Pratik is a passionate software developer dedicated to crafting user-friendly and impactful applications. With a deep understanding of technology and a commitment to excellence, they have built this platform to redefine the e-commerce experience.',
+        }
+        return context
+
 
 class ContactView(EcomMixin,TemplateView):
     template_name= "contactus.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ContactForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Process the form data
+            form.save()
+            messages.success(request, "Thank you for contacting us. We will get back to you shortly.")
+            return redirect('ecomapp:contact')
+        else:
+            context = self.get_context_data(**kwargs)
+            context['form'] = form
+            return self.render_to_response(context)
+        
 class CustomerProfileView(TemplateView):
     template_name="customerprofile.html"
     def dispatch(self, request, *args, **kwargs):

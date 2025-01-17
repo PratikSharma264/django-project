@@ -1,8 +1,24 @@
 {% extends 'base.html' %}
-{% block title%}Contact Us{% endblock %}
-
+{% load static %}
+{% block title %}Contact Us{% endblock %}
 
 {% block content %}
+<div class="contact-container">
     <h1>Contact Us</h1>
-    <h2>984123232</h2>
+    <p>If you have any questions, feedback, or need support, feel free to reach out to us using the form below.</p>
+    <form id="contact-form" class="contact-form" action="#" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
 {% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}
+

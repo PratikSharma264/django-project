@@ -13,7 +13,13 @@
             <div class='md -4'>
                 <h4><a href="{% url 'ecomapp:productdetail' p.slug %}">{{p.title}}</a></h4>
                 <img src="{{p.image.url}}" alt="" class="img-fluid" style="height:2500; object-fit: cover;">
-                <p class="mt -3">Price: <strike>Rs. {{p.marked_price}}</strike> Rs. {{p.selling_price}}</p>
+                <p class="mt -3">Price: 
+                    {% if p.marked_price != p.selling_price %}
+                        <strike>Rs. {{ p.marked_price }}</strike> Rs. {{ p.selling_price }}
+                    {% else %}
+                        Rs. {{ p.selling_price }}
+                    {% endif %}
+                </p>
                 <a href="{% url 'ecomapp:addtocart' p.id %}" class="btn btn-primary add-to-cart-btn">
                     <span class="icon"></span> Add to Cart
                 </a>

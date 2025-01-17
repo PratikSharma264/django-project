@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order,Customer
+from .models import Order,Customer,Contact
 from django.forms import TextInput, EmailInput
 from django.contrib.auth.models import User
 import re
@@ -140,3 +140,26 @@ class AdminLoginForm(forms.Form):
         }),
         label="Password"
     )
+
+
+
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Enter your name'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Enter your email address'}),
+            'message': forms.Textarea(attrs={'placeholder': 'Enter your message'}),
+        }
+        help_texts = {
+            'name': 'Please enter your full name.',
+            'email': 'We will use this email to contact you.',
+            'message': 'Please enter your message or inquiry.',
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if not email or '@' not in email:  # Basic email validation
+            raise forms.ValidationError("Please enter a valid email address.")
+        return email
