@@ -163,3 +163,6 @@ class ContactForm(forms.ModelForm):
         if not email or '@' not in email:  # Basic email validation
             raise forms.ValidationError("Please enter a valid email address.")
         return email
+    
+
+

@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Contact Us{% endblock %}
 
-{% block content %}
+{% comment %} {% block content %}
 <div class="contact-container">
     <h1>Contact Us</h1>
     <p>If you have any questions, feedback, or need support, feel free to reach out to us using the form below.</p>
@@ -20,5 +20,215 @@
 
 {% block extra_js %}
 <script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %} {% endcomment %}
+
+
+{% comment %} 
+{% block content %}
+<style>
+    .errorlist {
+        color: red;
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .errorlist li {
+        margin-bottom: 5px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+    }
+
+    .form-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    button[type="submit"] {
+        transition: all 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Contact Us</h3>
+                    <hr>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Render fields with custom input styles -->
+                        <div>
+                            <label for="id_name">Your Name</label>
+                            <input type="text" id="id_name" name="name" class="form-input" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div>
+                            <label for="id_email">Your Email</label>
+                            <input type="email" id="id_email" name="email" class="form-input" placeholder="Enter your email address" required>
+                        </div>
+
+                        <div>
+                            <label for="id_message">Your Inquiry</label>
+                            <textarea id="id_message" name="message" class="form-input" rows="5" placeholder="Enter your message or inquiry" required></textarea>
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-primary" aria-label="Submit the contact form">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}
+
+
+
+
+{% block content %}
+<style>
+    .errorlist {
+        color: red;
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .errorlist li {
+        margin-bottom: 5px;
+    }
+
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .form-control {
+        margin-bottom: 15px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+    }
+
+    .form-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    button[type="submit"] {
+        transition: all 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Contact Us</h3>
+                    <hr>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Render form fields with custom styling -->
+                        <div class="form-group">
+                            <label for="id_name">Name</label>
+                            <input type="text" id="id_name" name="name" class="form-input" placeholder="Enter your full name" required>
+                            {{ form.name.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">Email</label>
+                            <input type="email" id="id_email" name="email" class="form-input" placeholder="Enter your email address" required>
+                            {{ form.email.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_message">Inquiry</label>
+                            <textarea id="id_message" name="message" class="form-input" rows="5" placeholder="Enter your message or inquiry" required></textarea>
+                            {{ form.message.errors }}
+                        </div>
+
+                        <!-- Submit button -->
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-primary" aria-label="Submit the contact form">
+                                Send Message
+                            </button>
+                        </div> 
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}

@@ -410,7 +410,28 @@ class AdminLoginView(FormView):
         else:
             return render(self.request,self.template_name,{"form":self.form_class,"error":"Invalid credentials"})
         return super().form_valid(form)
+
+
+# class AdminLoginView(FormView):
+#     template_name = "adminpages/adminlogin.html"
+#     form_class = AdminLoginForm
+#     success_url = reverse_lazy("ecomapp:adminhome")
+
+#     def form_valid(self, form):
+#         uname = form.cleaned_data.get("username")
+#         pword = form.cleaned_data.get("password")
+#         usr = authenticate(username=uname, password=pword)
+#         if usr is not None and usr.is_staff:
+#             login(self.request, usr)
+#             return redirect(self.success_url)
+#         else:
+#             return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
+#         return super().form_valid(form)
     
+    
+
+
+
 class  AdminRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and Admin.objects.filter(user=request.user).exists():
@@ -462,4 +483,13 @@ class AdminOrderStatusChange(AdminRequiredMixin,View):
         order_obj.save()
         return redirect(reverse_lazy("ecomapp:adminorderdetail", kwargs={"pk":self.kwargs["pk"]}))
 
-   
+class AdminContactView(AdminRequiredMixin,ListView):
+    template_name="adminpages/admincontact.html"
+    queryset=Contact.objects.all().order_by("-id")
+    context_object_name="contacts"
+    ordering=["-created_at"]
+    
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['contacts']=Contact.objects.all().order_by("-id")
+        return context

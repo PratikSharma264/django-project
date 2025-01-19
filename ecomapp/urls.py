@@ -24,4 +24,5 @@ urlpatterns = [
     path("admin-order/<int:pk>/",AdminOrderDetailView.as_view(),name="adminorderdetail"),
     path("admin-all-orders/",AdminOrderListView.as_view(),name="adminorderlist"),
     path("admin-order-<int:pk>-change/",AdminOrderStatusChange.as_view(),name="adminorderstatuschange"),
+    path("admin-contact/",AdminContactView.as_view(),name="admincontact"),
 ] 
