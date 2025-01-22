@@ -2,8 +2,22 @@
 
 {% block title %}Cart {% endblock %}
 
+
 {% block content %}
-<div class="container">
-    <h3>Product added to cart sucessfully.</h3>
+<div class="container text-center py-5">
+    <div class="card shadow-sm p-4">
+        <div class="card-body">
+            <h3 class="card-title text-success mb-4">Success!</h3>
+            <p class="card-text text-muted">The product has been added to your cart successfully.</p>
+            <div class="mt-4">
+                <a href="{% url 'ecomapp:home' %}" class="btn btn-primary me-3" aria-label="Continue browsing the homepage">
+                    <i class="bi bi-house-door-fill me-2"></i> Continue Browsing
+                </a>
+                <a href="{% url 'ecomapp:mycart' %}" class="btn btn-outline-secondary" aria-label="View items in your cart">
+                    <i class="bi bi-cart-fill me-2"></i> View Cart
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

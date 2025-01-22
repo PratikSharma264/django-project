@@ -37,7 +37,7 @@
     }
 </style>
 
-<div class="container">
+{% comment %} <div class="container">
     <div class="row">
         <div class="col-md-6 mx-auto">
             <div class="card">
@@ -66,6 +66,44 @@
                                 <li style="color: red;">{{error}}</li>
                             {% endif %}
                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center">Admin Login</h3>
+                    <hr>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Render form fields -->
+                        {{ form.as_p }}
+
+                        <!-- Submit button -->
+                        <div class="text-center mt-3">
+                            <button type="submit" class="btn btn-primary" aria-label="Submit the Login form">
+                                Login as Admin
+                            </button>
+                        </div>
+
+                        <!-- Error message -->
+                        {% if error %}
+                            <div class="alert alert-danger mt-3">{{ error }}</div>
+                        {% endif %}
                     </form>
                 </div>
             </div>

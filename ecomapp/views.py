@@ -396,20 +396,20 @@ class SearchView(TemplateView):
 
 
 #admin pages
-class AdminLoginView(FormView):
-    template_name="adminpages/adminlogin.html"
-    form_class=AdminLoginForm
-    success_url=reverse_lazy("ecomapp:adminhome")
+# class AdminLoginView(FormView):
+#     template_name="adminpages/adminlogin.html"
+#     form_class=AdminLoginForm
+#     success_url=reverse_lazy("ecomapp:adminhome")
 
-    def form_valid(self, form):
-        uname=form.cleaned_data.get("username")
-        pword=form.cleaned_data.get("password")
-        usr=authenticate(username=uname,password=pword)
-        if usr is not None and usr.admin:
-            login(self.request,usr)
-        else:
-            return render(self.request,self.template_name,{"form":self.form_class,"error":"Invalid credentials"})
-        return super().form_valid(form)
+#     def form_valid(self, form):
+#         uname=form.cleaned_data.get("username")
+#         pword=form.cleaned_data.get("password")
+#         usr=authenticate(username=uname,password=pword)
+#         if usr is not None and usr.admin:
+#             login(self.request,usr)
+#         else:
+#             return render(self.request,self.template_name,{"form":self.form_class,"error":"Invalid credentials"})
+#         return super().form_valid(form)
 
 
 # class AdminLoginView(FormView):
@@ -428,25 +428,58 @@ class AdminLoginView(FormView):
 #             return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
 #         return super().form_valid(form)
     
-    
+
+class AdminLoginView(FormView):
+    template_name = "adminpages/adminlogin.html"
+    form_class = AdminLoginForm
+    success_url = reverse_lazy("ecomapp:adminhome")
+
+    def form_valid(self, form):
+        uname = form.cleaned_data.get("username")
+        pword = form.cleaned_data.get("password")
+        usr = authenticate(username=uname, password=pword)
+        if usr is not None and usr.is_staff:
+            login(self.request, usr)
+            self.request.session["admin_logged_in"] = True
+            return redirect(self.success_url)
+        else:
+            return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
+        #return super().form_valid(form)
 
 
 
-class  AdminRequiredMixin(object):
+# class  AdminRequiredMixin(object):
+#     def dispatch(self, request, *args, **kwargs):
+#         if request.user.is_authenticated and Admin.objects.filter(user=request.user).exists():
+#             pass
+#         else:
+#             return redirect("/admin-login/")
+#         return super().dispatch(request, *args, **kwargs)
+
+
+class AdminRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated and Admin.objects.filter(user=request.user).exists():
-            pass
+        if request.user.is_authenticated and request.session.get("admin_logged_in"):
+            return super().dispatch(request, *args, **kwargs)
         else:
             return redirect("/admin-login/")
-        return super().dispatch(request, *args, **kwargs)
+
+# class AdminHomeView(AdminRequiredMixin,TemplateView):
+#     template_name="adminpages/adminhome.html"
+    
+#     def get_context_data(self, **kwargs):
+#         context=super().get_context_data(**kwargs)
+#         context['pendingorders']=Order.objects.filter(order_status="Order Recieved").order_by("-id")
+#         return context
 
 
-class AdminHomeView(AdminRequiredMixin,TemplateView):
-    template_name="adminpages/adminhome.html"
+
+class AdminHomeView(AdminRequiredMixin, TemplateView):
+    template_name = "adminpages/adminhome.html"
     
     def get_context_data(self, **kwargs):
-        context=super().get_context_data(**kwargs)
-        context['pendingorders']=Order.objects.filter(order_status="Order Recieved").order_by("-id")
+        context = super().get_context_data(**kwargs)
+        context['pendingorders'] = Order.objects.filter(order_status="Order Recieved").order_by("-id")
         return context
 
 
