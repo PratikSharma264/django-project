@@ -7,14 +7,13 @@ import re
 class CheckoutForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['ordered_by', 'shipping_address', 'mobile', 'email']
+        fields = ['ordered_by', 'shipping_address', 'mobile', 'email','payment_method']
         widgets = {
             'mobile': TextInput(attrs={'placeholder': 'Enter your mobile number'}),
             'email': EmailInput(attrs={'placeholder': 'Enter your email address'}),
         }
         help_texts = {
             'mobile': 'Please enter a 10-digit mobile number.',
-            'email': 'We will send a confirmation to this email address.',
         }
 
     def clean_mobile(self):
@@ -28,6 +27,8 @@ class CheckoutForm(forms.ModelForm):
         if not email or '@' not in email:  # Basic email validation
             raise forms.ValidationError("Please enter a valid email address.")
         return email
+    
+
     
 # class CustomerRegistrationForm(forms.ModelForm):
 #     username = forms.CharField(widget=forms.TextInput())

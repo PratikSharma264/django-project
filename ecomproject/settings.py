@@ -49,7 +49,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ecomproject.custom_session.CustomSessionMiddleware',
+    
+
 ]
 
 ROOT_URLCONF = 'ecomproject.urls'
@@ -125,6 +126,11 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
+# settings.py
+
+KHALTI_PUBLIC_KEY = '73371c333f5d49a8a55828fc02226bce'
+KHALTI_SECRET_KEY = '2c352e50736446a5a7e8370586e2bc9c'
+KHALTI_VERIFY_URL = 'https://khalti.com/api/v2/payment/verify/'
 
 
 # Default primary key field type

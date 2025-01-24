@@ -1,7 +1,7 @@
 #from typing import Any
 from django.shortcuts import render,redirect
 from django.views.generic import View,TemplateView,CreateView,FormView,DetailView,ListView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from .models import *
 from django.contrib import messages
 from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm,ContactForm
@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login, logout
 import logging
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.conf import settings
+from django.http import JsonResponse
 
 # Create your views here.
 class EcomMixin(object):
@@ -182,7 +184,7 @@ class EmptyCartView(EcomMixin,View):
 
 
 
-class CheckoutView(EcomMixin,CreateView):
+# class CheckoutView(EcomMixin,CreateView):
     template_name = 'checkout.html'
     form_class = CheckoutForm
     success_url = reverse_lazy('ecomapp:home')  
@@ -213,32 +215,161 @@ class CheckoutView(EcomMixin,CreateView):
     def form_valid(self, form):
         cart_id = self.request.session.get('cart_id')
         if cart_id:
-            cart_obj= Cart.objects.get(id = cart_id)
+            cart_obj = Cart.objects.get(id=cart_id)
+            if Order.objects.filter(cart=cart_obj).exists():
+                # Handle the case where the cart is already associated with an order
+                messages.error(self.request, "This cart is already associated with an order.")
+                return redirect('ecomapp:mycart')
             form.instance.cart = cart_obj
-            form.instance.subtotal=cart_obj.total
-            form.instance.discount =  0
+            form.instance.subtotal = cart_obj.total
+            form.instance.discount = 0
             form.instance.total = cart_obj.total
             form.instance.order_status = 'Order Recieved'
             del self.request.session['cart_id']
+            pm = form.cleaned_data.get("payment_method")  # Payment Method
+            order = form.save()
+            if pm == "Khalti":
+                return redirect(reverse("ecomapp:khaltirequest", kwargs={"order_id": order.id}))
+        else:
+            return redirect('ecomapp:home')
+        return super().form_valid(form)
+    
+    # def form_valid(self, form):
+    #     cart_id = self.request.session.get('cart_id')
+    #     if cart_id:
+    #         cart_obj= Cart.objects.get(id = cart_id)
+    #         form.instance.cart = cart_obj
+    #         form.instance.subtotal=cart_obj.total
+    #         form.instance.discount =  0
+    #         form.instance.total = cart_obj.total
+    #         form.instance.order_status = 'Order Recieved'
+    #         del self.request.session['cart_id']
+    #         pm = form.cleaned_data.get("payment_method")  # Payment Method
+    #         order = form.save()
+    #         if pm == "Khalti":
+    #             return redirect(reverse("ecomapp:khaltirequest", kwargs={"order_id": order.id}))
+    #     else:
+    #         return redirect('ecomapp:home')
+    #     return super().form_valid(form)
+
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.views.generic import CreateView
+from .models import Cart, Order, Customer
+from .forms import CheckoutForm
+
+class CheckoutView(CreateView):
+    template_name = 'checkout.html'
+    form_class = CheckoutForm
+    success_url = reverse_lazy('ecomapp:home')  
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if request.user.is_authenticated:
+            try:
+                customer = request.user.customer
+            except Customer.DoesNotExist:
+                messages.error(request, "You need to complete your profile before proceeding to checkout.")
+                return redirect("/profile/")
+        else:
+            return redirect("/login/?next=/checkout/")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart_id = self.request.session.get("cart_id", None)
+        if cart_id:
+            try:
+                cart_obj = Cart.objects.get(id=cart_id)
+            except Cart.DoesNotExist:
+                cart_obj = None
+                messages.warning(self.request, "Cart does not exist.")
+        else:
+            cart_obj = None
+        context['cart'] = cart_obj
+        return context
+    
+    def form_valid(self, form):
+        cart_id = self.request.session.get('cart_id')
+        if cart_id:
+            cart_obj = Cart.objects.get(id=cart_id)
+            if Order.objects.filter(cart=cart_obj).exists():
+                # Handle the case where the cart is already associated with an order
+                messages.error(self.request, "This cart is already associated with an order.")
+                return redirect('ecomapp:mycart')
+            form.instance.cart = cart_obj
+            form.instance.subtotal = cart_obj.total
+            form.instance.discount = 0
+            form.instance.total = cart_obj.total
+            form.instance.order_status = 'Order Recieved'
+            del self.request.session['cart_id']
+            pm = form.cleaned_data.get("payment_method")  # Payment Method
+            order = form.save()
+            if pm == "Khalti":
+                return redirect(reverse("ecomapp:khalti_checkout", kwargs={"order_id": order.id}))
         else:
             return redirect('ecomapp:home')
         return super().form_valid(form)
 
-# class CustomerRegistrationView(CreateView):
-#     template_name = "customerregistration.html"
-#     form_class = CustomerRegistrationForm
-#     success_url = reverse_lazy("ecomapp:home")
+
+
+def khalti_checkout(request, order_id):
+    order = Order.objects.get(id=order_id)
+    context = {
+        'order': order,
+        'khalti_public_key': settings.KHALTI_PUBLIC_KEY
+    }
+    return render(request, 'khaltirequest.html', context)
+
+# views.py
+
+
+
+def verify_payment(request):   #khalti verify payment
+    if request.method == "POST":
+        data = request.json()
+        payload = {
+            "token": data.get("token"),
+            "amount": data.get("amount")
+        }
+        headers = {
+            "Authorization": f"Key {settings.KHALTI_SECRET_KEY}"
+        }
+
+        response = requests.post(settings.KHALTI_VERIFY_URL, payload, headers=headers)
+        if response.status_code == 200:
+            return JsonResponse({"success": True, "message": "Payment Verified"})
+        else:
+            return JsonResponse({"success": False, "message": "Verification Failed"})
+
+    return JsonResponse({"error": "Invalid Request"}, status=400)
+
+
+
+# class KhaltiRequestView(View):   
+#     def post(self,request,*args,**kwargs):
+#         url = "https://khalti.com/api/v2/payment/verify/"
+#         data = {
+#             "token": request.POST.get("token"),
+#             "amount": request.POST.get("amount")
+#         }
+#         headers = {
+#             "Authorization": "Key test_secret_key_9e2b2b5b5d4f4b8e9d2e4a0f1d2a0f1a"
+#         }
+#         response = requests.post(url, data=data, headers=headers)
+#         resp_dict = response.json()
+#         print(resp_dict)
+#         return JsonResponse(resp_dict)
+# class KhaltiRequestView(View):
+#     def get(self, request, *args, **kwargs):
+        
+#         return redirect("khaltilrequest.html")
     
-#     def form_valid(self, form):
-#         username = form.cleaned_data.get('username')
-#         password = form.cleaned_data.get('password')
-#         email = form.cleaned_data.get('email')
-#         user = User.objects.create_user(username,email,password)
-#         form.instance.user = user
-#         return super().form_valid(form)
-     
+
+
     
-# 
+
 
 logger = logging.getLogger(__name__)
 
@@ -411,22 +542,6 @@ class SearchView(TemplateView):
 #             return render(self.request,self.template_name,{"form":self.form_class,"error":"Invalid credentials"})
 #         return super().form_valid(form)
 
-
-# class AdminLoginView(FormView):
-#     template_name = "adminpages/adminlogin.html"
-#     form_class = AdminLoginForm
-#     success_url = reverse_lazy("ecomapp:adminhome")
-
-#     def form_valid(self, form):
-#         uname = form.cleaned_data.get("username")
-#         pword = form.cleaned_data.get("password")
-#         usr = authenticate(username=uname, password=pword)
-#         if usr is not None and usr.is_staff:
-#             login(self.request, usr)
-#             return redirect(self.success_url)
-#         else:
-#             return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
-#         return super().form_valid(form)
     
 
 class AdminLoginView(FormView):
@@ -444,7 +559,7 @@ class AdminLoginView(FormView):
             return redirect(self.success_url)
         else:
             return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
-        #return super().form_valid(form)
+        return super().form_valid(form)
 
 
 

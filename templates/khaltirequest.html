@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/khalti-checkout-web@latest/dist/khalti-checkout.iffe.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .content-box {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container center-container">
+        <div class="content-box text-center">
+            <h3>Your order amount is Rs. {{ order.total }}</h3>
+            <button id="payment-button" class="btn btn-primary mt-3">Pay with Khalti</button>
+            <a href="/" class="btn btn-secondary mt-3">Go to Home page</a>
+        </div>
+    </div>
+
+    <script>
+        var config = {
+            // Use the public key from the context
+            "publicKey": "{{ khalti_public_key }}",
+            "productIdentity": "order_{{ order.id }}",
+            "productName": "order_{{ order.id }}",
+            "productUrl": "http://localhost:8000",
+            "paymentPreference": [
+                "MOBILE_BANKING",
+                "KHALTI",
+                "EBANKING",
+                "CONNECT_IPS",
+                "SCT",
+            ],
+            "eventHandler": {
+                onSuccess (payload) {
+                    // hit merchant api for initiating verification
+                    axios.post("/khalti-verify/", {
+                        token: payload.token,
+                        amount: payload.amount,
+                        order_id: "{{ order.id }}"
+                    }).then(function(resp) {
+                        console.log(resp.data);
+                        alert("Payment Successful!");
+                        // Redirect or perform other actions
+                    }).catch(function(error) {
+                        console.error(error);
+                        alert("Payment Verification Failed!");
+                    });
+                },
+                onError (error) {
+                    console.error(error);
+                    alert("Payment Failed!");
+                },
+                onClose () {
+                    console.log("Widget is closing");
+                }
+            }
+        };
+
+        var checkout = new KhaltiCheckout(config);
+        var btn = document.getElementById("payment-button");
+        btn.onclick = function () {
+            checkout.show({amount: {{ order.total }} * 100});
+        }
+    </script>
+</body>
+</html>

@@ -18,6 +18,10 @@ urlpatterns = [
     path("profile/",CustomerProfileView.as_view(),name="customerprofile"),
     path("profile/order-<int:pk>/",CustomerOrderDetailView.as_view(),name="customerorderdetail"),
     path("search/", SearchView.as_view(),name="search"),
+    #payment
+    # path('khalti-request/', KhaltiRequestView.as_view(), name='khaltirequest'),
+    path('khalti-checkout/<int:order_id>/', khalti_checkout, name='khalti_checkout'),
+    path('khalti-verify/', verify_payment, name='verify_payment'),
     #Admin Section
     path("admin-login/",AdminLoginView.as_view(),name="adminlogin"),
     path("admin-home/",AdminHomeView.as_view(),name="adminhome"),
