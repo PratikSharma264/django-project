@@ -2,6 +2,7 @@
 {% load static %}
 {% block title %}About the Project{% endblock %}
 
+{%comment%}
 {% block content %}
 <div class="about-container">
     <h1>About the Project</h1>
@@ -16,6 +17,126 @@
         </div>
     </div>
     <a href="{% url 'ecomapp:contact' %}" id="contact-btn" class="btn btn-primary">Contact Creator</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %} {% endcomment %}
+
+
+
+{% block content %}
+<style>
+    .about-container {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .about-container h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .about-container p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    .creator-section {
+        margin-top: 30px;
+    }
+
+    .creator-section h2 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .creator-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .creator-profile h3 {
+        text-align: center;
+    }
+    
+
+    .creator-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .creator-profile h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+
+    .creator-profile p {
+        font-size: 14px;
+        color: #666;
+        margin: 3px 0;
+    }
+
+    #contact-btn {
+        display: block;
+        margin: 20px auto 0;
+        width: fit-content;
+        text-align: center;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    #contact-btn:hover {
+        background-color: #0056b3;
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="about-container">
+        <h1>About the Project</h1>
+        <p>
+            This project is an innovative e-commerce platform aimed at providing the best products and services to our customers. 
+            It is the culmination of a vision to make online shopping easy, reliable, and customer-focused.
+        </p>
+        <div class="creator-section">
+            <h2>Creator</h2>
+            <div class="creator-profile">
+                <img src="{{ creator.image_url }}" alt="{{ creator.name }}'s Picture" class="creator-img">    
+                <div>
+                    <h3>{{ creator.name }}</h3>   
+                    <p>{{ creator.role }}</p>
+                    <p>{{ creator.bio }}</p>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'ecomapp:contact' %}" id="contact-btn" aria-label="Contact Creator">Contact Creator</a>
+    </div>
 </div>
 {% endblock %}
 
