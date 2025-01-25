@@ -183,82 +183,6 @@ class EmptyCartView(EcomMixin,View):
 
 
 
-
-# class CheckoutView(EcomMixin,CreateView):
-    template_name = 'checkout.html'
-    form_class = CheckoutForm
-    success_url = reverse_lazy('ecomapp:home')  
-
-    def dispatch(self, request, *args, **kwargs):
-        user = request.user
-        if request.user.is_authenticated and request.user.customer:
-            pass
-        else:
-            return redirect("/login/?next=/checkout/")
-        return super().dispatch(request, *args, **kwargs)
-    
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        cart_id = self.request.session.get("cart_id", None)
-        if cart_id:
-            try:
-                cart_obj = Cart.objects.get(id=cart_id)
-            except Cart.DoesNotExist:
-                cart_obj = None
-                messages.warning(self.request, "Cart does not exist.")
-        else:
-            cart_obj = None
-        context['cart'] = cart_obj
-        return context
-    
-    def form_valid(self, form):
-        cart_id = self.request.session.get('cart_id')
-        if cart_id:
-            cart_obj = Cart.objects.get(id=cart_id)
-            if Order.objects.filter(cart=cart_obj).exists():
-                # Handle the case where the cart is already associated with an order
-                messages.error(self.request, "This cart is already associated with an order.")
-                return redirect('ecomapp:mycart')
-            form.instance.cart = cart_obj
-            form.instance.subtotal = cart_obj.total
-            form.instance.discount = 0
-            form.instance.total = cart_obj.total
-            form.instance.order_status = 'Order Recieved'
-            del self.request.session['cart_id']
-            pm = form.cleaned_data.get("payment_method")  # Payment Method
-            order = form.save()
-            if pm == "Khalti":
-                return redirect(reverse("ecomapp:khaltirequest", kwargs={"order_id": order.id}))
-        else:
-            return redirect('ecomapp:home')
-        return super().form_valid(form)
-    
-    # def form_valid(self, form):
-    #     cart_id = self.request.session.get('cart_id')
-    #     if cart_id:
-    #         cart_obj= Cart.objects.get(id = cart_id)
-    #         form.instance.cart = cart_obj
-    #         form.instance.subtotal=cart_obj.total
-    #         form.instance.discount =  0
-    #         form.instance.total = cart_obj.total
-    #         form.instance.order_status = 'Order Recieved'
-    #         del self.request.session['cart_id']
-    #         pm = form.cleaned_data.get("payment_method")  # Payment Method
-    #         order = form.save()
-    #         if pm == "Khalti":
-    #             return redirect(reverse("ecomapp:khaltirequest", kwargs={"order_id": order.id}))
-    #     else:
-    #         return redirect('ecomapp:home')
-    #     return super().form_valid(form)
-
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.views.generic import CreateView
-from .models import Cart, Order, Customer
-from .forms import CheckoutForm
-
 class CheckoutView(CreateView):
     template_name = 'checkout.html'
     form_class = CheckoutForm
@@ -322,7 +246,7 @@ def khalti_checkout(request, order_id):
     }
     return render(request, 'khaltirequest.html', context)
 
-# views.py
+
 
 
 

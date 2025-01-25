@@ -133,6 +133,7 @@ KHALTI_SECRET_KEY = '2c352e50736446a5a7e8370586e2bc9c'
 KHALTI_VERIFY_URL = 'https://khalti.com/api/v2/payment/verify/'
 
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
