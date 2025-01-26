@@ -1,0 +1,80 @@
+{% extends 'adminpages/adminbase.html' %}
+{% block title %}Product List{% endblock %}
+
+{% comment %} {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Product List</h3>
+            <hr>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Return Policy</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in allproducts %}
+                    <tr>
+                        <td><img src="{{product.image.url}}" alt="" class="img-fluid" style="height:50px; object-fit: cover;"></td>
+                        <td>{{product.title}}</td>
+                        <td>{{product.price}}</td>
+                        <td>{{product.category}}</td>
+                        <td>{{product.stock}}</td>
+                        <td>{{product.return_policy}}</td>
+                        <td>
+                            <a href="{% url 'ecomapp:productdetail' product.slug %}" class="btn btn-info">View</a>
+                            <a href="{% url 'ecomapp:productupdate' product.id %}" class="btn btn-warning">Update</a>
+                            <a href="{% url 'ecomapp:productdelete' product.id %}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+     {% endcomment %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>All Product List</h3><hr>
+            <a href="{% url 'ecomapp:adminproductcreate' %}">Add New Product</a>
+            <hr>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Product Title</th>
+                        <th>Image</th>
+                        <th>Price</th>
+                        <th>Views</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in allproducts %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{product.title}}</td>
+                        <td><img src="{{product.image.url}}" alt="" class="img-fluid" style="height:75px; object-fit: cover;"></td> 
+                        <td>{{product.selling_price}}</td>
+                        <td>{{product.view_count}}</td>
+                        
+                       
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

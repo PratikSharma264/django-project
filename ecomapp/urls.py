@@ -23,6 +23,8 @@ urlpatterns = [
     # path('khalti-request/', KhaltiRequestView.as_view(), name='khaltirequest'),
     path('khalti-checkout/<int:order_id>/', khalti_checkout, name='khalti_checkout'),
     path('khalti-verify/', verify_payment, name='verify_payment'),
+    
+
     #Admin Section
     path("admin-login/",AdminLoginView.as_view(),name="adminlogin"),
     path("admin-home/",AdminHomeView.as_view(),name="adminhome"),
@@ -30,6 +32,9 @@ urlpatterns = [
     path("admin-all-orders/",AdminOrderListView.as_view(),name="adminorderlist"),
     path("admin-order-<int:pk>-change/",AdminOrderStatusChange.as_view(),name="adminorderstatuschange"),
     path("admin-contact/",AdminContactView.as_view(),name="admincontact"),
+    path("admin-product/list",AdminProductListView.as_view(),name="adminproductlist"),
+    path("admin-product/add",AdminProductCreateView.as_view(),name="adminproductcreate"),
+   
 ] 
 
 if settings.DEBUG:

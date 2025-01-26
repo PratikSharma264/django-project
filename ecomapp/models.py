@@ -48,6 +48,13 @@ class Product(models.Model):          #Products that are present from the beginn
         return self.title
     
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="products/images/")
+
+    def __str__(self):
+         return self.product.title 
+
 class Cart(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     total = models.PositiveIntegerField(default=0)
@@ -77,7 +84,7 @@ ORDER_STATUS = (("Order Recieved","Order Recieved"),
 
 METHOD=(
     ("Cash on Delivery","Cash on Delivery"),
-    ("Khalti","Khalti")
+    ("Khalti","Khalti"),
 )
 class Order(models.Model):
     cart = models.OneToOneField(Cart, on_delete=models.CASCADE)

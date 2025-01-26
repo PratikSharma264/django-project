@@ -1,5 +1,5 @@
 from django import forms
-from .models import Order,Customer,Contact
+from .models import Order,Customer,Contact,Product
 from django.forms import TextInput, EmailInput
 from django.contrib.auth.models import User
 import re
@@ -166,4 +166,41 @@ class ContactForm(forms.ModelForm):
         return email
     
 
+class ProductForm(forms.ModelForm):
+    
+    # more_images = forms.FileField(required=False, widget=forms.FileField(attrs={
+    #     'class': 'form-control',
+    #     'multiple': True}))
+    class Meta:
+        model = Product
+        fields = ['title', 'slug', 'category', 'image', 'marked_price', 'selling_price', 'description', 'warranty', 'return_policy']
+        widgets = {
+            'title': forms.TextInput(attrs={'class':'form-control','placeholder': 'Enter product title'}),
+            'slug': forms.TextInput(attrs={'class':'form-control','placeholder': 'Enter the unique product slug'}),
+            'category': forms.Select(attrs={'class':'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class':'form-control'}),
+            'marked_price': forms.NumberInput(attrs={'class':'form-control','placeholder': 'Enter marked price'}),
+            'selling_price': forms.NumberInput(attrs={'class':'form-control','placeholder': 'Enter selling price'}),
+            'description': forms.Textarea(attrs={'class':'form-control','placeholder': 'Enter product description'}),
+            'warranty': forms.TextInput(attrs={'class':'form-control','placeholder': 'Enter product warranty'}),
+            'return_policy': forms.TextInput(attrs={'class':'form-control','placeholder': 'Enter product return policy'}),
+        }
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug')
+        if Product.objects.filter(slug=slug).exists():  # Slug uniqueness validation
+            raise forms.ValidationError("A product with this slug already exists.")
+        return slug
+
+    def clean_marked_price(self):
+        marked_price = self.cleaned_data.get('marked_price')
+        if marked_price <= 0:  # Marked price validation
+            raise forms.ValidationError("Marked price must be greater than 0.")
+        return marked_price
+
+    def clean_selling_price(self):
+        selling_price = self.cleaned_data.get('selling_price')
+        if selling_price <= 0:  # Selling price validation
+            raise forms.ValidationError("Selling price must be greater than 0.")
+        return selling_price
 

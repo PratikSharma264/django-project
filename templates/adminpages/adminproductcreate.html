@@ -1,0 +1,18 @@
+{% extends 'adminpages/adminbase.html' %}
+{% block title %}Add New Product{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 ,mx-auto">
+            <h3>Add New Product</h3>
+            <hr>
+            <form action="{% url 'ecomapp:adminproductcreate' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{form.as_p}}
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

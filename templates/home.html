@@ -121,7 +121,9 @@
         <div class="col-md-3 card">
             <div class="md-4">
                 <h4><a href="{% url 'ecomapp:productdetail' p.slug %}">{{ p.title }}</a></h4>
-                <img src="{{ p.image.url }}" alt="" class="img-fluid" style="height:250px; object-fit: cover;">
+                <a href="{% url 'ecomapp:productdetail' p.slug %}">
+                    <img src="{{ p.image.url }}" alt="" class="img-fluid" style="height:250px; object-fit: contain;">
+                </a>
                 <p class="mt-3">
                     Price:
                     {% if p.marked_price != p.selling_price %}

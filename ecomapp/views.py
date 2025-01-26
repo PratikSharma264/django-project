@@ -4,9 +4,10 @@ from django.views.generic import View,TemplateView,CreateView,FormView,DetailVie
 from django.urls import reverse_lazy,reverse
 from .models import *
 from django.contrib import messages
-from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm,ContactForm
+from .forms import CheckoutForm,CustomerRegistrationForm,CustomerLoginForm,AdminLoginForm,ContactForm,ProductForm
 from django.contrib.auth import authenticate, login, logout
 import logging
+import requests
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -232,6 +233,8 @@ class CheckoutView(CreateView):
             order = form.save()
             if pm == "Khalti":
                 return redirect(reverse("ecomapp:khalti_checkout", kwargs={"order_id": order.id}))
+            elif pm == "Esewa":
+                return redirect(reverse("ecomapp:esewa_payment_page", kwargs={"order_id": order.id}))
         else:
             return redirect('ecomapp:home')
         return super().form_valid(form)
@@ -270,30 +273,7 @@ def verify_payment(request):   #khalti verify payment
     return JsonResponse({"error": "Invalid Request"}, status=400)
 
 
-
-# class KhaltiRequestView(View):   
-#     def post(self,request,*args,**kwargs):
-#         url = "https://khalti.com/api/v2/payment/verify/"
-#         data = {
-#             "token": request.POST.get("token"),
-#             "amount": request.POST.get("amount")
-#         }
-#         headers = {
-#             "Authorization": "Key test_secret_key_9e2b2b5b5d4f4b8e9d2e4a0f1d2a0f1a"
-#         }
-#         response = requests.post(url, data=data, headers=headers)
-#         resp_dict = response.json()
-#         print(resp_dict)
-#         return JsonResponse(resp_dict)
-# class KhaltiRequestView(View):
-#     def get(self, request, *args, **kwargs):
-        
-#         return redirect("khaltilrequest.html")
     
-
-
-    
-
 
 logger = logging.getLogger(__name__)
 
@@ -335,25 +315,88 @@ class CustomerLogoutView(View):
         return redirect("ecomapp:home")
     
 
+# class CustomerLoginView(FormView):
+#     template_name = "customerlogin.html"
+#     form_class = CustomerLoginForm
+#     success_url = reverse_lazy("ecomapp:home")
+    
+#     def form_valid(self,form):
+#         uname = form.cleaned_data.get("username")
+#         pword = form.cleaned_data["password"]
+#         usr = authenticate(username=uname,password=pword)
+#         #if usr is not None and usr.customer:
+#         if usr is not None and Customer.objects.filter(user=usr).exists():
+#             login(self.request, usr)
+#         else:
+#             return render(self.request,self.template_name, {"form": self.form_class,"error": "Invalid credentials"})
+#         return super().form_valid(form)
+    
+#     def get_success_url(self):
+#         if "next" in self.request.GET:
+#             next_url = self.request.GET.get("next")
+#             return next_url
+#         else:
+#             return self.success_url
+
+
+#  class CustomerLoginView(FormView):
+    template_name = "customerlogin.html"
+    form_class = CustomerLoginForm
+    success_url = reverse_lazy("ecomapp:home")
+
+    def form_valid(self, form):
+        uname = form.cleaned_data.get("username")
+        pword = form.cleaned_data["password"]
+        usr = authenticate(username=uname, password=pword)
+
+        if usr is not None:
+            # Check if the user is a customer and log them in
+            if Customer.objects.filter(user=usr).exists():
+                login(self.request, usr)
+                return super().form_valid(form)
+            # Check if the user is a superuser and log them in
+            elif usr.is_superuser:
+                login(self.request, usr)
+                return redirect('ecomapp:adminhome')  # Redirect to admin home page
+        else:
+            return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
+
+    def get_success_url(self):
+        if "next" in self.request.GET:
+            next_url = self.request.GET.get("next")
+            return next_url
+        else:
+            return self.success_url
+
+
 class CustomerLoginView(FormView):
     template_name = "customerlogin.html"
     form_class = CustomerLoginForm
     success_url = reverse_lazy("ecomapp:home")
-    
-    def form_valid(self,form):
+
+    def form_valid(self, form):
         uname = form.cleaned_data.get("username")
         pword = form.cleaned_data["password"]
-        usr = authenticate(username=uname,password=pword)
-        #if usr is not None and usr.customer:
-        if usr is not None and Customer.objects.filter(user=usr).exists():
-            login(self.request, usr)
+        usr = authenticate(username=uname, password=pword)
+
+        if usr is not None:
+            # Check if the user is a customer and log them in
+            if Customer.objects.filter(user=usr).exists():
+                login(self.request, usr)
+                return super().form_valid(form)
+            # Check if the user is a superuser and log them in
+            elif usr.is_superuser:
+                login(self.request, usr)
+                return redirect('ecomapp:adminhome')  # Redirect to admin home page
         else:
-            return render(self.request,self.template_name, {"form": self.form_class,"error": "Invalid credentials"})
-        return super().form_valid(form)
-    
+            return render(self.request, self.template_name, {"form": self.form_class, "error": "Invalid credentials"})
+
     def get_success_url(self):
         if "next" in self.request.GET:
             next_url = self.request.GET.get("next")
+            # Check if the 'next' URL is pointing to the admin login page and prevent that
+            if "adminlogin" in next_url:
+                return reverse_lazy("ecomapp:adminhome")  # Redirect to admin home page
             return next_url
         else:
             return self.success_url
@@ -578,3 +621,29 @@ class AdminContactView(AdminRequiredMixin,ListView):
         context=super().get_context_data(**kwargs)
         context['contacts']=Contact.objects.all().order_by("-id")
         return context
+
+
+class AdminProductListView(AdminRequiredMixin,ListView):
+    template_name="adminpages/adminproductlist.html"
+    queryset=Product.objects.all().order_by("-id")
+    context_object_name="allproducts"
+    ordering=["-id"]
+    
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        context['products']=Product.objects.all().order_by("-id")
+        return context
+    
+class AdminProductCreateView(AdminRequiredMixin,CreateView):
+    template_name="adminpages/adminproductcreate.html"
+    model=Product
+    form_class=ProductForm
+    #fields="__all__"
+    success_url=reverse_lazy("ecomapp:adminproductlist")
+    
+    def form_valid(self, form):
+        ptitle=form.cleaned_data.get("title")
+        messages.success(self.request,ptitle+" has been added successfully")
+        return super().form_valid(form)
+    
+
