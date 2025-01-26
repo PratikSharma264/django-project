@@ -367,11 +367,24 @@ class AboutView(EcomMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         # Provide creator details
         context['creator'] = {
-            'name': 'Patik Sharma',  # Replace with actual creator's name
-            'role': 'Developer & Visionary',
-            'image_url': 'path/to/creator.jpg',  # Replace with actual image path
-            'bio': 'Pratik is a passionate software developer dedicated to crafting user-friendly and impactful applications. With a deep understanding of technology and a commitment to excellence, they have built this platform to redefine the e-commerce experience.',
-        }
+        'name': 'Pratik Sharma',  
+        'role': 'Developer & Visionary',
+        'image_url': settings.MEDIA_URL + 'creator/19cdfda9-1dce-4171-a19b-1301c9d3d0fe.jpg', 
+        'bio': 'Pratik is a passionate software developer dedicated to crafting user-friendly and impactful applications. With a deep understanding of technology and a commitment to excellence, he has built this platform to redefine the e-commerce experience.',
+        'mission': 'To revolutionize online shopping by providing seamless, reliable, and customer-focused solutions.',
+        'vision': 'Creating a future where online shopping is intuitive, inclusive, and accessible for everyone.',
+        'values': [
+            'Innovation',
+            'Customer-Centric Approach',
+            'Integrity',
+            'Sustainability',
+            'Diversity and Inclusion'
+        ],
+   
+        'fun_fact': 'The platform’s name was inspired by Pratik’s late-night brainstorming sessions fueled by coffee!',
+        'contact_cta': 'Want to get in touch? Reach out via our Contact page or follow me on social media.'
+}
+
         return context
 
 

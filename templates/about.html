@@ -129,9 +129,22 @@
             <div class="creator-profile">
                 <img src="{{ creator.image_url }}" alt="{{ creator.name }}'s Picture" class="creator-img">    
                 <div>
-                    <h3>{{ creator.name }}</h3>   
-                    <p>{{ creator.role }}</p>
+                    <h2>{{ creator.name }}</h2>
+                    <h4>{{ creator.role }}</h4>
                     <p>{{ creator.bio }}</p>
+                    <h4>Mission</h4>
+                    <p>{{ creator.mission }}</p>
+                    <h4>Vision</h4>
+                    <p>{{ creator.vision }}</p>
+                    <h4>Values</h4>
+                    <ul>
+                        {% for value in creator.values %}
+                            <li>{{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h4>Fun Fact</h4>
+                    <p>{{ creator.fun_fact }}</p>
+                    <p>{{ creator.contact_cta }}</p>
                 </div>
             </div>
         </div>

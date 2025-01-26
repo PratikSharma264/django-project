@@ -1,5 +1,6 @@
 from django.urls import path
 from .views  import *
+from django.conf.urls.static import static
 app_name= "ecomapp"
 urlpatterns = [
     path("",HomeView.as_view(), name= "home"), 
@@ -30,3 +31,6 @@ urlpatterns = [
     path("admin-order-<int:pk>-change/",AdminOrderStatusChange.as_view(),name="adminorderstatuschange"),
     path("admin-contact/",AdminContactView.as_view(),name="admincontact"),
 ] 
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
