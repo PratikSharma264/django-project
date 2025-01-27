@@ -2,6 +2,7 @@
 
 {% block title %} Checkout {% endblock %}
 
+{%comment%}
 {% block content %}
 <div class="container">
     <div class="row">
@@ -44,7 +45,7 @@
                 <div>
                     {% comment %} <button type="submit" class="btn btn-success btn-lg btn-block" style="transition: background-color 0.3s;">
                         Place Order
-                    </button> {% endcomment %}
+                    </button> {% endcomment %}{%comment%}
                     <button type="submit" class="place-order-btn">Place Order</button>
 
                 </div>
@@ -93,4 +94,112 @@
         transform: scale(1); /* Resets the scale when clicked */
     }
 </style>
-{% endblock %} 
+{% endblock %}  {% endcomment %}
+
+
+
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Cart Section -->
+        <div class="col-md-6">
+            <h3 class="mb-4">Items in Cart</h3>
+            <a href="{% url 'ecomapp:mycart' %}" class="btn btn-success mb-3">Update Total</a>
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>SN</th>
+                        <th>Product</th>
+                        <th>Rate</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cp in cart.cartproduct_set.all %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ cp.product.title }}</td>
+                        <td>Rs. {{ cp.rate }}</td>
+                        <td>{{ cp.quantity }}</td>
+                        <td>Rs. {{ cp.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <th colspan="4" class="text-right">Total</th>
+                        <th>Rs. {{ cart.total }}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Checkout Form Section -->
+        <div class="col-md-6">
+            <div class="checkout-container p-4 shadow rounded">
+                <h3 class="mb-4 text-center">Checkout Form</h3>
+                <form action="{% url 'ecomapp:checkout' %}" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="text-center mt-4">
+                        <button type="submit" class="place-order-btn">Place Order</button>
+                    </div>
+                </form>
+
+                <!-- Error Messages -->
+                {% if form.errors %}
+                <div class="error mt-4">
+                    <p class="text-danger font-weight-bold">Please correct the following errors:</p>
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li class="text-danger">{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li class="text-danger">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form Container Styles */
+    .checkout-container {
+        background-color: #f8f9fa; /* Light gray background */
+        border: 1px solid #dee2e6; /* Border color */
+    }
+
+    .place-order-btn {
+        background-color: #28a745; /* Green background */
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%; /* Makes it responsive */
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .place-order-btn:hover {
+        background-color: #218838; /* Darker green on hover */
+        transform: scale(1.02); /* Slightly enlarges the button */
+    }
+
+    .place-order-btn:active {
+        background-color: #1e7e34; /* Even darker green when clicked */
+        transform: scale(1); /* Resets the scale when clicked */
+    }
+
+    .error ul {
+        list-style-type: disc;
+        margin-left: 20px;
+    }
+</style>
+{% endblock %}
