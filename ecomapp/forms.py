@@ -204,3 +204,37 @@ class ProductForm(forms.ModelForm):
             raise forms.ValidationError("Selling price must be greater than 0.")
         return selling_price
 
+class PasswordForgotForm(forms.Form):
+    email = forms.CharField(
+        widget=forms.EmailInput(attrs={
+            "placeholder": "Enter email address used during registration", 
+            "class": "form-control"
+        }),
+        label="Email Address"
+    )
+
+    def clean_email(self):
+        e = self.cleaned_data.get("email")
+        if not Customer.objects.filter(user__email=e).exists():
+            raise forms.ValidationError("No account with this email exists.")
+        return e
+
+class PasswordResetForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'autocomplete': 'new-password',
+        'placeholder': 'Enter New Password',
+    }), label="New Password")
+    confirm_new_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'autocomplete': 'new-password',
+        'placeholder': 'Confirm New Password',
+    }), label="Confirm New Password")
+
+    def clean_confirm_new_password(self):
+        new_password = self.cleaned_data.get("new_password")
+        confirm_new_password = self.cleaned_data.get("confirm_new_password")
+        if new_password != confirm_new_password:
+            raise forms.ValidationError(
+                "New Passwords did not match!")
+        return confirm_new_password

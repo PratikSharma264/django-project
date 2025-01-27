@@ -67,6 +67,7 @@
                             {% endif %}
                         </div>
                     </form>
+                    <p>Forgot Password? <a href="{% url 'ecomapp:passwordforgot' %}">Reset Here</a></p>
                     <p>or dont have account? <a href="{% url 'ecomapp:customerregistration' %}{% if request.GET.next %}?next={{request.GET.next}}{% endif %}">Register Here</a></p>
                 </div>
             </div>

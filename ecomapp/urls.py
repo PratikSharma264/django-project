@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path,include
 from .views  import *
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 app_name= "ecomapp"
 urlpatterns = [
     path("",HomeView.as_view(), name= "home"), 
@@ -19,7 +20,18 @@ urlpatterns = [
     path("profile/",CustomerProfileView.as_view(),name="customerprofile"),
     path("profile/order-<int:pk>/",CustomerOrderDetailView.as_view(),name="customerorderdetail"),
     path("search/", SearchView.as_view(),name="search"),
-    #payment
+ 
+    path("forgot-password/", PasswordForgotView.as_view(), name="passwordforgot"),
+    path("password-reset/<email>/<token>/", PasswordResetView.as_view(), name="passwordreset"),
+
+    # path('accounts/', include('django.contrib.auth.urls')),
+    # path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    # path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    # path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    # path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+
+    # #payment
     # path('khalti-request/', KhaltiRequestView.as_view(), name='khaltirequest'),
     path('khalti-checkout/<int:order_id>/', khalti_checkout, name='khalti_checkout'),
     path('khalti-verify/', verify_payment, name='verify_payment'),
